@@ -1,0 +1,45 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+
+# Import path remappings
+remappings = [
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/"
+]
+
+# Solidity compiler version
+solc_version = "0.8.24"
+
+# Enable optimizer
+optimizer = true
+optimizer_runs = 200
+
+# Gas and stack configs
+evm_version = "paris"         # latest stable hardfork
+gas_reports = ["*"]           # enable gas reporting for all contracts
+ffi = true                    # enable calling external scripts if needed
+
+# Test options
+fuzz_runs = 256               # number of runs per fuzz test
+fuzz_max_global_rejects = 65536
+fuzz_seed = "0x1234"          # optional seed for reproducibility
+
+# Invariant testing
+[invariant]
+runs = 128
+depth = 32
+
+
+
+
+
+# Profile for CI (strict mode)
+[profile.ci]
+src = "src"
+out = "out"
+optimizer = true
+optimizer_runs = 200
+fuzz_runs = 1000
+gas_reports = ["*"]
