@@ -198,7 +198,15 @@ contract RyzerRealEstateTokenFactory is
         IRyzerOrderManager(orderManager).initialize(escrow, project, p.projectOwner);
         IRyzerDAO(dao).initialize(project, address(ryzerXToken), 60 /* quorum placeholder */ );
 
-        emit ProjectDeployed(project, escrow, orderManager, dao, p.assetId, p.name, address(stableCoin));
+        emit ProjectDeployed(
+            project,
+            escrow,
+            orderManager,
+            dao,
+            p.assetId,
+            p.name,
+            address(stableCoin)
+        );
     }
 
     /* --------------------------------------------------------- */

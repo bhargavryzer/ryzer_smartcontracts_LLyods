@@ -130,9 +130,9 @@ contract RyzerOrderManager is
     error InsufficientAllowance();
 
     /*────────────────────────────── INITIALIZER ───────────────────────────*/
-    function initialize(address _escrow, address _project, address _owner, uint8 _sigs) external initializer {
+    function initialize(address _escrow, address _project, address _owner) external initializer {
         if (_escrow == address(0) || _project == address(0) || _owner == address(0)) revert BadAddress();
-        if (_project.code.length == 0 || _sigs == 0 || _sigs > 10) revert BadParameter();
+        if (_project.code.length == 0) revert BadParameter();
 
         __UUPSUpgradeable_init();
         __AccessControl_init();
@@ -141,7 +141,6 @@ contract RyzerOrderManager is
 
         escrow = _escrow;
         project = _project;
-        requiredSigs = _sigs;
         platformFeeBps = 250; // 2.5 %
         feeRecipient = _owner;
 
