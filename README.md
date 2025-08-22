@@ -1,66 +1,152 @@
-## Foundry
+Script ran successfully.
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+== Logs ==
+Deployer: 0xFDa522b8c863ed7Abf681d0c86Cc0c5DCb95d4E6
+Deploying to XDC Apothem testnet...
+Deploying mock tokens...
+Deploying implementation contracts...
+Initializing registry...
+Initializing company factory...
+Initializing realEstateFactory ...
 
-Foundry consists of:
+=== Deployment Summary ===
+RyzerRegistry: 0xE9F0134d86a3Be6F94B308680c52e9e3E721e54A
+RyzerCompanyFactory: 0x1C47eEA3875b478da15897e7645745fB52513805
+RyzerRealEstateTokenFactory: 0x9D760db5FC75F50d3C9d0dDf35A57cA4B66c8CdF
+RyzerEscrow (impl): 0x27386608e74075EE9F375361fF88a9352b4E6D3D
+RyzerOrderManager (impl): 0xE31c3Cc4232112a687E2E8daA041342f99269b38
+RyzerDAO (impl): 0x670278E5fe3b6220ea8513392Bc9eEcEf445f8D5
+RyzerRealEstateToken (impl): 0x02685576A1eE9a03a2639525d3A76040b81880a7
+USDT Mock: 0x0156a77F12282DDd83Baa3BA50C20d367957ec13
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+## Setting up 1 EVM.
 
-## Documentation
+==========================
 
-https://book.getfoundry.sh/
+Chain 51
 
-## Usage
+Estimated gas price: 25.000000001 gwei
 
-### Build
+Estimated total gas used for script: 32594734
 
-```shell
-$ forge build
-```
+Estimated amount required: 0.814868350032594734 ETH
 
-### Test
+==========================
 
-```shell
-$ forge test
-```
+##### 51
 
-### Format
+✅ [Success] Hash: 0xdd920fb4e6fd11db2aaa94a78f1ac01528132d371c8b0fcad4983f61584f9b53
+Contract Address: 0x8e4e6d7434606eBB76408Ef8721D2a6Efc4BC918
+Block: 72747489
+Paid: 0.004545037500363603 ETH (363603 gas \* 12.500000001 gwei)
 
-```shell
-$ forge fmt
-```
+##### 51
 
-### Gas Snapshots
+✅ [Success] Hash: 0x55d04e77162d842f584273b00910bf36a567a59d6aa761cb7482360b0616a4e6
+Contract Address: 0xE31c3Cc4232112a687E2E8daA041342f99269b38
+Block: 72747489
+Paid: 0.04965987500397279 ETH (3972790 gas \* 12.500000001 gwei)
 
-```shell
-$ forge snapshot
-```
+##### 51
 
-### Anvil
+✅ [Success] Hash: 0x50fd3b8f84641e7f687c47a4eb54e01b9651cde3cf383fd66c5cdfd5578affa2
+Contract Address: 0x0156a77F12282DDd83Baa3BA50C20d367957ec13
+Block: 72747489
+Paid: 0.017725162501418013 ETH (1418013 gas \* 12.500000001 gwei)
 
-```shell
-$ anvil
-```
+##### 51
 
-### Deploy
+✅ [Success] Hash: 0x0efafb55c9d3f747c137c75fa0bdabc460aff4c18e8651598df95fd7e852ffad
+Contract Address: 0x84FE2f468F1882dF4865945EC0D94a40F7eb1995
+Block: 72747489
+Paid: 0.017725162501418013 ETH (1418013 gas \* 12.500000001 gwei)
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
+##### 51
 
-### Cast
+✅ [Success] Hash: 0xe078354ef018d6e39b25b64a312f549ab3c255aac36ef66c2b291330fc23601d
+Contract Address: 0x1C47eEA3875b478da15897e7645745fB52513805
+Block: 72747489
+Paid: 0.019566800001565344 ETH (1565344 gas \* 12.500000001 gwei)
 
-```shell
-$ cast <subcommand>
-```
+##### 51
 
-### Help
+✅ [Success] Hash: 0x5129e6bd7e20bdc184746aa5e88a6890b3f2b74f5f1544aff8fdd640c7ae3960
+Contract Address: 0x02685576A1eE9a03a2639525d3A76040b81880a7
+Block: 72747489
+Paid: 0.067378462505390277 ETH (5390277 gas \* 12.500000001 gwei)
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+##### 51
+
+✅ [Success] Hash: 0x8f243a0db1030f1dc6f93578cdfcbd8a34e040b0b82d907f0d93583b92f17226
+Contract Address: 0xE9F0134d86a3Be6F94B308680c52e9e3E721e54A
+Block: 72747489
+Paid: 0.029016612502321329 ETH (2321329 gas \* 12.500000001 gwei)
+
+##### 51
+
+✅ [Success] Hash: 0x918456feeb01e46414f12bb98a806d74aac11e15388e23a4ecabb73debbfc782
+Contract Address: 0x9D760db5FC75F50d3C9d0dDf35A57cA4B66c8CdF
+Block: 72747489
+Paid: 0.029656550002372524 ETH (2372524 gas \* 12.500000001 gwei)
+
+##### 51
+
+✅ [Success] Hash: 0x4b3c2108210112d8f0de725732f957a4f5df78d9e3d2c7539433ec649538f042
+Contract Address: 0x670278E5fe3b6220ea8513392Bc9eEcEf445f8D5
+Block: 72747489
+Paid: 0.031751862502540149 ETH (2540149 gas \* 12.500000001 gwei)
+
+##### 51
+
+✅ [Success] Hash: 0xbe1be9b7984183bc18af0cb8fad9eada1cda82f5387fb42b3f68739e42ca68e4
+Contract Address: 0x26C4F9437452B693112744b28ED030A850de0434
+Block: 72747489
+Paid: 0.017725162501418013 ETH (1418013 gas \* 12.500000001 gwei)
+
+##### 51
+
+✅ [Success] Hash: 0xd6eeefa7ebad688d26301661ee5c227ea228d14313c06492282f5252abf9bc36
+Contract Address: 0x27386608e74075EE9F375361fF88a9352b4E6D3D
+Block: 72747489
+Paid: 0.045493862503639509 ETH (3639509 gas \* 12.500000001 gwei)
+
+##### 51
+
+✅ [Success] Hash: 0x11835cf892bd5225dda9282bdd0c741dd80f656b4f1d970bf8a147c41cef927c
+Contract Address: 0x71A5Ca09ADbB1Afa6C9061B1B7066be9e06AF0bA
+Block: 72747489
+Paid: 0.018777912501502233 ETH (1502233 gas \* 12.500000001 gwei)
+
+##### 51
+
+✅ [Success] Hash: 0xcc43c25b49a72f1971645b8d470c21c4c3df3aa90b234aae15af6461069f4651
+Contract Address: 0x47e12Ab329e8f875765f747442A49F97c1d73F38
+Block: 72747489
+Paid: 0.003534775000282782 ETH (282782 gas \* 12.500000001 gwei)
+
+##### 51
+
+✅ [Success] Hash: 0x2842b18bd61652a5e1aec4d8d3b98cf0d7b269460276ceb30a3bd5fc043285ba
+Contract Address: 0xB4aa7d756cf1CA42c5ea00686bE0ddfA5a3d183E
+Block: 72747489
+Paid: 0.003851525000308122 ETH (308122 gas \* 12.500000001 gwei)
+
+##### 51
+
+✅ [Success] Hash: 0x2de451e31984119c2c0c1870909766f4564ba48508472331024162bee845386c
+Contract Address: 0xBda66Ecfc3F89884b535597dD52419E6aD0a1eEf
+Block: 72747489
+Paid: 0.023426725001874138 ETH (1874138 gas \* 12.500000001 gwei)
+
+##### 51
+
+✅ [Success] Hash: 0x65e54cac738b9c1c527dbda68d9727fb32ed375261ee748e2ddb427a2208970f
+Contract Address: 0xE22dC3E4F108ccB6E97ABD1de65ab00Cd1f024Da
+Block: 72747489
+Paid: 0.005828525000466282 ETH (466282 gas \* 12.500000001 gwei)
+
+✅ Sequence #1 on 51 | Total Paid: 0.385664012530853121 ETH (30853121 gas \* avg 12.500000001 gwei)
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.

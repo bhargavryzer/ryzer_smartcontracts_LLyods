@@ -14,3 +14,21 @@ when company creates the asset, the value of that asset is 10 lakhs and asset to
 https://github.com/TokenySolutions/T-REX/blob/main/contracts/compliance/modular/ModularCompliance.sol
 
 https://github.com/TokenySolutions/T-REX/blob/main/contracts/registry/implementation/IdentityRegistry.sol
+
+deployment script flow ->
+
+RyzerCompany. (w/o proxy)
+RyzerRealEstateToken (w/o proxy) (projectTokenImpl)
+
+RyzerDAO (w/o proxy)
+RyzerEscrow (w/o proxy)
+RyzerOrderManager (w/o proxy)
+
+RyzerCompanyFactory (w proxy)
+RyzerRealEstateFactory (w proxy)
+RyzerRegistry (w proxy)
+
+Normal Contracts - usdc mock, usdt mock
+
+initilization script -
+company factory , realstate factory, ryzer registory (initialize)

@@ -59,8 +59,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-pragma solidity 0.8.17;
+pragma solidity 0.8.24;
 
 import "./ITrustedIssuersRegistry.sol";
 import "./IClaimTopicsRegistry.sol";
@@ -132,11 +131,7 @@ interface IIdentityRegistry {
      *  @param _country The country of the investor
      *  emits `IdentityRegistered` event
      */
-    function registerIdentity(
-        address _userAddress,
-        IIdentity _identity,
-        uint16 _country
-    ) external;
+    function registerIdentity(address _userAddress, IIdentity _identity, uint16 _country) external;
 
     /**
      *  @dev Removes an user from the identity registry.

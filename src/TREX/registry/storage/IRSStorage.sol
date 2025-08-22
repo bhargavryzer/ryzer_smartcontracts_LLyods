@@ -60,8 +60,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-pragma solidity 0.8.17;
+pragma solidity 0.8.24;
 
 import "@onchain-id/solidity/contracts/interface/IIdentity.sol";
 
@@ -72,6 +71,7 @@ contract IRSStorage {
         uint16 investorCountry;
     }
     /// @dev mapping between a user address and the corresponding identity
+
     mapping(address => Identity) internal _identities;
 
     /// @dev array of Identity Registries linked to this storage

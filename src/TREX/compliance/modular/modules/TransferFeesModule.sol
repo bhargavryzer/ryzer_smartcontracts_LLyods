@@ -65,8 +65,7 @@
  *     which prohibits commercial use. For commercial inquiries, please contact
  *     Tokeny sàrl for licensing options.
  */
-
-pragma solidity 0.8.17;
+pragma solidity 0.8.24;
 
 import "../IModularCompliance.sol";
 import "../../../token/IToken.sol";
@@ -84,12 +83,12 @@ contract TransferFeesModule is AbstractModuleUpgradeable {
     mapping(address => Fee) private _fees;
 
     /**
-    *  this event is emitted whenever a fee definition is updated for the given compliance address
-    *  the event is emitted by 'setFee'.
-    *  compliance is the compliance contract address
-    *  _rate is the rate of the fee (0.01% = 1, 1% = 100, 100% = 10000)
-    *  _collector is the collector wallet address
-    */
+     *  this event is emitted whenever a fee definition is updated for the given compliance address
+     *  the event is emitted by 'setFee'.
+     *  compliance is the compliance contract address
+     *  _rate is the rate of the fee (0.01% = 1, 1% = 100, 100% = 10000)
+     *  _collector is the collector wallet address
+     */
     event FeeUpdated(address indexed compliance, uint256 _rate, address _collector);
 
     error FeeRateIsOutOfRange(address compliance, uint256 rate);
@@ -105,12 +104,12 @@ contract TransferFeesModule is AbstractModuleUpgradeable {
     }
 
     /**
-    *  @dev Sets the fee rate and collector of the given compliance
-    *  @param _rate is the rate of the fee (0.01% = 1, 1% = 100, 100% = 10000)
-    *  @param _collector is the collector wallet address
-    *  Only the owner of the Compliance smart contract can call this function
-    *  Collector wallet address must be verified
-    */
+     *  @dev Sets the fee rate and collector of the given compliance
+     *  @param _rate is the rate of the fee (0.01% = 1, 1% = 100, 100% = 10000)
+     *  @param _collector is the collector wallet address
+     *  Only the owner of the Compliance smart contract can call this function
+     *  Collector wallet address must be verified
+     */
     function setFee(uint256 _rate, address _collector) external onlyComplianceCall {
         address tokenAddress = IModularCompliance(msg.sender).getTokenBound();
         if (_rate > 10000) {
@@ -128,8 +127,8 @@ contract TransferFeesModule is AbstractModuleUpgradeable {
     }
 
     /**
-    *  @dev See {IModule-moduleTransferAction}.
-    */
+     *  @dev See {IModule-moduleTransferAction}.
+     */
     function moduleTransferAction(address _from, address _to, uint256 _value) external override onlyComplianceCall {
         address senderIdentity = _getIdentity(msg.sender, _from);
         address receiverIdentity = _getIdentity(msg.sender, _to);
@@ -154,7 +153,7 @@ contract TransferFeesModule is AbstractModuleUpgradeable {
     }
 
     /**
-    *  @dev See {IModule-moduleMintAction}.
+     *  @dev See {IModule-moduleMintAction}.
      */
     // solhint-disable-next-line no-empty-blocks
     function moduleMintAction(address _to, uint256 _value) external override onlyComplianceCall {}
@@ -169,17 +168,22 @@ contract TransferFeesModule is AbstractModuleUpgradeable {
      *  @dev See {IModule-moduleCheck}.
      */
     // solhint-disable-next-line no-unused-vars
-    function moduleCheck(address _from, address _to, uint256 _value, address _compliance) external view override returns (bool) {
+    function moduleCheck(address _from, address _to, uint256 _value, address _compliance)
+        external
+        view
+        override
+        returns (bool)
+    {
         return true;
     }
 
     /**
-    *  @dev getter for `_fees` variable
-    *  @param _compliance the Compliance smart contract to be checked
-    *  returns the Fee
-    */
+     *  @dev getter for `_fees` variable
+     *  @param _compliance the Compliance smart contract to be checked
+     *  returns the Fee
+     */
     function getFee(address _compliance) external view returns (Fee memory) {
-       return _fees[_compliance];
+        return _fees[_compliance];
     }
 
     /**
@@ -191,7 +195,7 @@ contract TransferFeesModule is AbstractModuleUpgradeable {
     }
 
     /**
-      *  @dev See {IModule-isPlugAndPlay}.
+     *  @dev See {IModule-isPlugAndPlay}.
      */
     function isPlugAndPlay() external pure returns (bool) {
         return false;
@@ -205,12 +209,12 @@ contract TransferFeesModule is AbstractModuleUpgradeable {
     }
 
     /**
-    *  @dev Returns the ONCHAINID (Identity) of the _userAddress
-    *  @param _userAddress Address of the wallet
-    *  internal function, can be called only from the functions of the Compliance smart contract
-    */
+     *  @dev Returns the ONCHAINID (Identity) of the _userAddress
+     *  @param _userAddress Address of the wallet
+     *  internal function, can be called only from the functions of the Compliance smart contract
+     */
     function _getIdentity(address _compliance, address _userAddress) internal view returns (address) {
-        return address(IToken(IModularCompliance(_compliance).getTokenBound()).identityRegistry().identity
-        (_userAddress));
+        return
+            address(IToken(IModularCompliance(_compliance).getTokenBound()).identityRegistry().identity(_userAddress));
     }
 }

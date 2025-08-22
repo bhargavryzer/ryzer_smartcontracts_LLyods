@@ -65,8 +65,7 @@
  *     which prohibits commercial use. For commercial inquiries, please contact
  *     Tokeny sàrl for licensing options.
  */
-
-pragma solidity 0.8.17;
+pragma solidity 0.8.24;
 
 import "../IModularCompliance.sol";
 import "../../../token/IToken.sol";
@@ -149,14 +148,14 @@ contract TokenListingRestrictionsModule is AbstractModuleUpgradeable {
     }
 
     /**
-    *  @dev Configures the listing type of a token
-    *  Can only be called once per token
-    *  @param _listingType can be WHITELISTING(1) or BLACKLISTING(2)
-    *  WHITELISTING(1): investors must whitelist/allow the token address in order to receive it
-    *  BLACKLISTING(2): investors can receive this token by default. If they do not want to receive it,
-    *   they need to blacklist/disallow it.
-    *  Only the owner of the Compliance smart contract can call this function
-    */
+     *  @dev Configures the listing type of a token
+     *  Can only be called once per token
+     *  @param _listingType can be WHITELISTING(1) or BLACKLISTING(2)
+     *  WHITELISTING(1): investors must whitelist/allow the token address in order to receive it
+     *  BLACKLISTING(2): investors can receive this token by default. If they do not want to receive it,
+     *   they need to blacklist/disallow it.
+     *  Only the owner of the Compliance smart contract can call this function
+     */
     function configureToken(ListingType _listingType) external onlyComplianceCall {
         address tokenAddress = _getBoundTokenAddress(msg.sender);
         if (_listingType == ListingType.NOT_CONFIGURED) {
@@ -172,15 +171,15 @@ contract TokenListingRestrictionsModule is AbstractModuleUpgradeable {
     }
 
     /**
-    *  @dev Lists multiple tokens for the investor (caller)
-    *  If the token listing type is WHITELISTING, it will be whitelisted/allowed for the investor.
-    *  If the token listing type is BLACKLISTING, it will be blaclisted/disallowed for the investor.
-    *  @param _tokenAddresses is the array of addresses of tokens to be listed
-    *  @param _addressType can be WALLET(0) or ONCHAINID(1)
-    *  If it is WALLET, the token will be listed only for the caller wallet address
-    *  If it is ONCHAINID, the token will be listed for the ONCHAINID (it will be applied to all wallet addresses of the OID)
-    *  It will revert if the listing type of the token is not configured
-    */
+     *  @dev Lists multiple tokens for the investor (caller)
+     *  If the token listing type is WHITELISTING, it will be whitelisted/allowed for the investor.
+     *  If the token listing type is BLACKLISTING, it will be blaclisted/disallowed for the investor.
+     *  @param _tokenAddresses is the array of addresses of tokens to be listed
+     *  @param _addressType can be WALLET(0) or ONCHAINID(1)
+     *  If it is WALLET, the token will be listed only for the caller wallet address
+     *  If it is ONCHAINID, the token will be listed for the ONCHAINID (it will be applied to all wallet addresses of the OID)
+     *  It will revert if the listing type of the token is not configured
+     */
     function batchListTokens(address[] calldata _tokenAddresses, InvestorAddressType _addressType) external {
         for (uint256 i = 0; i < _tokenAddresses.length; i++) {
             listToken(_tokenAddresses[i], _addressType);
@@ -188,12 +187,12 @@ contract TokenListingRestrictionsModule is AbstractModuleUpgradeable {
     }
 
     /**
-    *  @dev Unlists multiple tokens for the investor (caller)
-    *  @param _tokenAddresses is the array of addresses of tokens to be unlisted
-    *  @param _addressType can be WALLET(0) or ONCHAINID(1)
-    *  If it is WALLET, the token will be unlisted only for the caller wallet address
-    *  If it is ONCHAINID, the token will be unlisted for the ONCHAINID
-    */
+     *  @dev Unlists multiple tokens for the investor (caller)
+     *  @param _tokenAddresses is the array of addresses of tokens to be unlisted
+     *  @param _addressType can be WALLET(0) or ONCHAINID(1)
+     *  If it is WALLET, the token will be unlisted only for the caller wallet address
+     *  If it is ONCHAINID, the token will be unlisted for the ONCHAINID
+     */
     function batchUnlistTokens(address[] calldata _tokenAddresses, InvestorAddressType _addressType) external {
         for (uint256 i = 0; i < _tokenAddresses.length; i++) {
             unlistToken(_tokenAddresses[i], _addressType);
@@ -227,12 +226,12 @@ contract TokenListingRestrictionsModule is AbstractModuleUpgradeable {
      *  returns TRUE if the token is allowed for the address of _to (or for the OID of _to)
      *  returns FALSE if the token is not allowed for the address of _to
      */
-    function moduleCheck(
-        address /*_from*/,
-        address _to,
-        uint256 /*_value*/,
-        address _compliance
-    ) external view override returns (bool) {
+    function moduleCheck(address, /*_from*/ address _to, uint256, /*_value*/ address _compliance)
+        external
+        view
+        override
+        returns (bool)
+    {
         if (_to == address(0)) {
             return true;
         }
@@ -285,7 +284,7 @@ contract TokenListingRestrictionsModule is AbstractModuleUpgradeable {
     /**
      *  @dev See {IModule-canComplianceBind}.
      */
-    function canComplianceBind(address /*_compliance*/) external pure override returns (bool) {
+    function canComplianceBind(address /*_compliance*/ ) external pure override returns (bool) {
         return true;
     }
 
@@ -297,15 +296,15 @@ contract TokenListingRestrictionsModule is AbstractModuleUpgradeable {
     }
 
     /**
-    *  @dev Lists a token for the investor (caller)
-    *  If the token listing type is WHITELISTING, it will be whitelisted/allowed for the investor.
-    *  If the token listing type is BLACKLISTING, it will be blaclisted/disallowed for the investor.
-    *  @param _tokenAddress is the address of the token to be listed
-    *  @param _addressType can be WALLET(0) or ONCHAINID(1)
-    *  If it is WALLET, the token will be listed only for the caller wallet address
-    *  If it is ONCHAINID, the token will be listed for the ONCHAINID (it will be applied to all wallet addresses of the OID)
-    *  It will revert if the listing type of the token is not configured
-    */
+     *  @dev Lists a token for the investor (caller)
+     *  If the token listing type is WHITELISTING, it will be whitelisted/allowed for the investor.
+     *  If the token listing type is BLACKLISTING, it will be blaclisted/disallowed for the investor.
+     *  @param _tokenAddress is the address of the token to be listed
+     *  @param _addressType can be WALLET(0) or ONCHAINID(1)
+     *  If it is WALLET, the token will be listed only for the caller wallet address
+     *  If it is ONCHAINID, the token will be listed for the ONCHAINID (it will be applied to all wallet addresses of the OID)
+     *  It will revert if the listing type of the token is not configured
+     */
     function listToken(address _tokenAddress, InvestorAddressType _addressType) public {
         if (_tokenListingType[_tokenAddress] == ListingType.NOT_CONFIGURED) {
             revert TokenIsNotConfigured(_tokenAddress);
@@ -321,12 +320,12 @@ contract TokenListingRestrictionsModule is AbstractModuleUpgradeable {
     }
 
     /**
-    *  @dev Unlists a token for the investor (caller)
-    *  @param _tokenAddress is the address of the token to be unlisted
-    *  @param _addressType can be WALLET(0) or ONCHAINID(1)
-    *  If it is WALLET, the token will be unlisted only for the caller wallet address
-    *  If it is ONCHAINID, the token will be unlisted for the ONCHAINID
-    */
+     *  @dev Unlists a token for the investor (caller)
+     *  @param _tokenAddress is the address of the token to be unlisted
+     *  @param _addressType can be WALLET(0) or ONCHAINID(1)
+     *  If it is WALLET, the token will be unlisted only for the caller wallet address
+     *  If it is ONCHAINID, the token will be unlisted for the ONCHAINID
+     */
     function unlistToken(address _tokenAddress, InvestorAddressType _addressType) public {
         address investorAddress = _getInvestorAddressByAddressType(_tokenAddress, msg.sender, _addressType);
         if (!_tokenInvestorListingStatus[_tokenAddress][investorAddress]) {

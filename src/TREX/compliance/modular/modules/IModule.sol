@@ -59,8 +59,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-pragma solidity 0.8.17;
+pragma solidity 0.8.24;
 
 interface IModule {
     /// events
@@ -146,7 +145,10 @@ interface IModule {
      *  @param _compliance address of the compliance contract concerned by the transfer action
      *  the function returns TRUE if the module allows the transfer, FALSE otherwise
      */
-    function moduleCheck(address _from, address _to, uint256 _value, address _compliance) external view returns (bool);
+    function moduleCheck(address _from, address _to, uint256 _value, address _compliance)
+        external
+        view
+        returns (bool);
 
     /**
      *  @dev getter for compliance binding status on module

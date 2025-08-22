@@ -60,16 +60,13 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-pragma solidity 0.8.17;
+pragma solidity 0.8.24;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 import "../../Roles.sol";
 
-contract OwnerRolesUpgradeable is OwnableUpgradeable
-
- {
+contract OwnerRolesUpgradeable is OwnableUpgradeable {
     using Roles for Roles.Role;
 
     /// variables

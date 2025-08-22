@@ -59,13 +59,11 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-pragma solidity 0.8.17;
+pragma solidity 0.8.24;
 
 import "./AbstractProxy.sol";
 
 contract ClaimTopicsRegistryProxy is AbstractProxy {
-
     constructor(address implementationAuthority) {
         require(implementationAuthority != address(0), "invalid argument - zero address");
         _storeImplementationAuthority(implementationAuthority);
@@ -74,7 +72,7 @@ contract ClaimTopicsRegistryProxy is AbstractProxy {
         address logic = (ITREXImplementationAuthority(getImplementationAuthority())).getCTRImplementation();
 
         // solhint-disable-next-line avoid-low-level-calls
-        (bool success, ) = logic.delegatecall(abi.encodeWithSignature("init()"));
+        (bool success,) = logic.delegatecall(abi.encodeWithSignature("init()"));
         require(success, "Initialization failed.");
     }
 
@@ -89,12 +87,8 @@ contract ClaimTopicsRegistryProxy is AbstractProxy {
             let retSz := returndatasize()
             returndatacopy(0, 0, retSz)
             switch success
-            case 0 {
-                revert(0, retSz)
-            }
-            default {
-                return(0, retSz)
-            }
+            case 0 { revert(0, retSz) }
+            default { return(0, retSz) }
         }
     }
 }

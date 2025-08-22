@@ -59,13 +59,11 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-pragma solidity 0.8.17;
+pragma solidity 0.8.24;
 
 import "@onchain-id/solidity/contracts/interface/IIdentity.sol";
 
 interface IIdentityRegistryStorage {
-
     /// events
 
     /**
@@ -125,11 +123,7 @@ interface IIdentityRegistryStorage {
      *  @param _country The country of the investor
      *  emits `IdentityStored` event
      */
-    function addIdentityToStorage(
-        address _userAddress,
-        IIdentity _identity,
-        uint16 _country
-    ) external;
+    function addIdentityToStorage(address _userAddress, IIdentity _identity, uint16 _country) external;
 
     /**
      *  @dev Removes an user from the storage.

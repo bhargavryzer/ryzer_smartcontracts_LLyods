@@ -65,8 +65,7 @@
  *     which prohibits commercial use. For commercial inquiries, please contact
  *     Tokeny sàrl for licensing options.
  */
-
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.24;
 
 import "./AbstractModuleUpgradeable.sol";
 
@@ -95,7 +94,7 @@ contract TransferRestrictModule is AbstractModuleUpgradeable {
     function initialize() external initializer {
         __AbstractModule_init();
     }
-    
+
     /**
      *  @dev allows a user address for transfer.
      *  @param _userAddress is the address of the user
@@ -134,7 +133,7 @@ contract TransferRestrictModule is AbstractModuleUpgradeable {
     }
 
     /**
-    *  @dev disallows multiple user addresses for transfer.
+     *  @dev disallows multiple user addresses for transfer.
      *  @param _userAddresses is the array of user addresses
      *  Only the owner of the Compliance smart contract can call this function
      *  emits an `UserDisallowed` event
@@ -172,17 +171,17 @@ contract TransferRestrictModule is AbstractModuleUpgradeable {
     /**
      *  @dev See {IModule-moduleCheck}.
      */
-    function moduleCheck(
-        address _from,
-        address _to,
-        uint256 /*_value*/,
-        address _compliance
-    ) external view override returns (bool) {
+    function moduleCheck(address _from, address _to, uint256, /*_value*/ address _compliance)
+        external
+        view
+        override
+        returns (bool)
+    {
         if (_from == address(0) || _to == address(0)) {
             return true;
         }
 
-        if(_allowedUserAddresses[_compliance][_from]) {
+        if (_allowedUserAddresses[_compliance][_from]) {
             return true;
         }
 
@@ -190,11 +189,11 @@ contract TransferRestrictModule is AbstractModuleUpgradeable {
     }
 
     /**
-    *  @dev getter for `_allowedUserAddresses` mapping
-    *  @param _compliance the Compliance smart contract to be checked
-    *  @param _userAddress the user address to be checked
-    *  returns the true if user is allowed to transfer
-    */
+     *  @dev getter for `_allowedUserAddresses` mapping
+     *  @param _compliance the Compliance smart contract to be checked
+     *  @param _userAddress the user address to be checked
+     *  returns the true if user is allowed to transfer
+     */
     function isUserAllowed(address _compliance, address _userAddress) external view returns (bool) {
         return _allowedUserAddresses[_compliance][_userAddress];
     }
@@ -202,7 +201,7 @@ contract TransferRestrictModule is AbstractModuleUpgradeable {
     /**
      *  @dev See {IModule-canComplianceBind}.
      */
-    function canComplianceBind(address /*_compliance*/) external view override returns (bool) {
+    function canComplianceBind(address /*_compliance*/ ) external view override returns (bool) {
         return true;
     }
 

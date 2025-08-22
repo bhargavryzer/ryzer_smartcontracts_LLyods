@@ -42,11 +42,7 @@ contract RyzerEscrowTest is Test {
 
     event EscrowInitialized(address indexed usdt, address indexed usdc, address indexed project);
     event Deposited(
-        bytes32 indexed orderId,
-        address indexed buyer,
-        RyzerEscrow.Asset indexed token,
-        uint128 amount,
-        bytes32 assetId
+        bytes32 indexed orderId, address indexed buyer, RyzerEscrow.Asset indexed token, uint128 amount, bytes32 assetId
     );
     event Released(bytes32 indexed orderId, address indexed to, RyzerEscrow.Asset indexed token, uint128 amount);
     event DividendDeposited(address indexed depositor, RyzerEscrow.Asset indexed token, uint128 amount);
@@ -55,7 +51,9 @@ contract RyzerEscrowTest is Test {
         bytes32 indexed disputeId, address indexed buyer, RyzerEscrow.Asset indexed token, uint128 amount, string reason
     );
     event DisputeSigned(bytes32 indexed disputeId, address indexed signer);
-    event DisputeResolved(bytes32 indexed disputeId, address indexed resolvedTo, RyzerEscrow.Asset indexed token, uint128 amount);
+    event DisputeResolved(
+        bytes32 indexed disputeId, address indexed resolvedTo, RyzerEscrow.Asset indexed token, uint128 amount
+    );
 
     function setUp() public {
         // Deploy mock tokens with 6 decimals
@@ -75,11 +73,7 @@ contract RyzerEscrowTest is Test {
 
         // Deploy proxy and initialize
         bytes memory data = abi.encodeWithSelector(
-            RyzerEscrow.initialize.selector,
-            address(usdt),
-            address(usdc),
-            address(project),
-            owner
+            RyzerEscrow.initialize.selector, address(usdt), address(usdc), address(project), owner
         );
 
         ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), data);
@@ -91,8 +85,8 @@ contract RyzerEscrowTest is Test {
                 name: "Test Real Estate Token",
                 symbol: "TRET",
                 decimals: 18,
-                maxSupply: 1000000 * 10**18,
-                tokenPrice: 100 * 10**6, // $100 in 6 decimals
+                maxSupply: 1000000 * 10 ** 18,
+                tokenPrice: 100 * 10 ** 6, // $100 in 6 decimals
                 cancelDelay: 7 days,
                 assetType: RyzerRealEstateToken.AssetType.Commercial
             }),
@@ -102,7 +96,7 @@ contract RyzerEscrowTest is Test {
                 onchainID: makeAddr("onchainID"),
                 projectOwner: projectOwner,
                 factory: makeAddr("factory"),
-                escrow: address(escrow), 
+                escrow: address(escrow),
                 orderManager: orderManager,
                 dao: address(ryzerDAO),
                 companyId: keccak256("testCompany"),
@@ -113,22 +107,22 @@ contract RyzerEscrowTest is Test {
             }),
             policy: RyzerRealEstateToken.InvestmentPolicy({
                 preMintAmount: 0, // Set to 0 to avoid minting during initialization
-                minInvestment: 1000 * 10**18,
-                maxInvestment: 100000 * 10**18,
+                minInvestment: 1000 * 10 ** 18,
+                maxInvestment: 100000 * 10 ** 18,
                 isActive: true
             })
         });
 
         // Initialize the project token with correct caller (should be factory or owner)
         bytes memory initData = abi.encode(config);
-        
+
         // Use the factory address to initialize to avoid role issues
         vm.prank(makeAddr("factory"));
         project.initialize(initData);
 
         // Set project contracts (must be called by projectOwner who has PROJECT_ADMIN_ROLE)
         vm.prank(projectOwner);
-        project.setProjectContracts(address(escrow), orderManager, address(ryzerDAO), 0); 
+        project.setProjectContracts(address(escrow), orderManager, address(ryzerDAO), 0);
 
         // Grant admin roles
         vm.startPrank(owner);
@@ -158,13 +152,9 @@ contract RyzerEscrowTest is Test {
     function testInitialize_Success() public {
         // Deploy new implementation for fresh initialization test
         RyzerEscrow newImplementation = new RyzerEscrow();
-        
+
         bytes memory data = abi.encodeWithSelector(
-            RyzerEscrow.initialize.selector,
-            address(usdt),
-            address(usdc),
-            address(project),
-            owner
+            RyzerEscrow.initialize.selector, address(usdt), address(usdc), address(project), owner
         );
 
         vm.expectEmit(true, true, true, true);
@@ -184,7 +174,7 @@ contract RyzerEscrowTest is Test {
 
     function testInitialize_InvalidAddress() public {
         RyzerEscrow newImplementation = new RyzerEscrow();
-        
+
         bytes memory data = abi.encodeWithSelector(
             RyzerEscrow.initialize.selector,
             address(0), // Invalid USDT address
@@ -200,10 +190,10 @@ contract RyzerEscrowTest is Test {
     function testInitialize_InvalidDecimals() public {
         // Create a token with wrong decimals
         ERC20Mock wrongToken = new ERC20Mock();
-        wrongToken.mint(address(this), 1000000 * 10**18); // 18 decimals instead of 6
+        wrongToken.mint(address(this), 1000000 * 10 ** 18); // 18 decimals instead of 6
 
         RyzerEscrow newImplementation = new RyzerEscrow();
-        
+
         bytes memory data = abi.encodeWithSelector(
             RyzerEscrow.initialize.selector,
             address(wrongToken), // Wrong decimals
@@ -227,14 +217,14 @@ contract RyzerEscrowTest is Test {
         escrow.deposit(orderId1, buyer, DEPOSIT_AMOUNT, RyzerEscrow.Asset.USDT, assetId1);
 
         // Verify deposit
-        (address storedBuyer, uint128 storedAmount, RyzerEscrow.Asset storedToken, bytes32 storedAssetId) = 
+        (address storedBuyer, uint128 storedAmount, RyzerEscrow.Asset storedToken, bytes32 storedAssetId) =
             escrow.deposits(orderId1);
-        
+
         assertEq(storedBuyer, buyer);
         assertEq(storedAmount, DEPOSIT_AMOUNT);
         assertEq(uint8(storedToken), uint8(RyzerEscrow.Asset.USDT));
         assertEq(storedAssetId, assetId1);
-        
+
         // Verify token transfer
         assertEq(usdt.balanceOf(address(escrow)), DEPOSIT_AMOUNT);
         assertEq(usdt.balanceOf(buyer), 10000e6 - DEPOSIT_AMOUNT);
@@ -248,20 +238,19 @@ contract RyzerEscrowTest is Test {
         escrow.deposit(orderId1, buyer, DEPOSIT_AMOUNT, RyzerEscrow.Asset.USDC, assetId1);
 
         // Verify deposit
-        (address storedBuyer, uint128 storedAmount, RyzerEscrow.Asset storedToken, bytes32 storedAssetId) = 
+        (address storedBuyer, uint128 storedAmount, RyzerEscrow.Asset storedToken, bytes32 storedAssetId) =
             escrow.deposits(orderId1);
-        
+
         assertEq(storedBuyer, buyer);
         assertEq(storedAmount, DEPOSIT_AMOUNT);
         assertEq(uint8(storedToken), uint8(RyzerEscrow.Asset.USDC));
         assertEq(storedAssetId, assetId1);
-        
+
         // Verify token transfer
         assertEq(usdc.balanceOf(address(escrow)), DEPOSIT_AMOUNT);
         assertEq(usdc.balanceOf(buyer), 10000e6 - DEPOSIT_AMOUNT);
     }
 
-    
     // ============ RELEASE TESTS ============
 
     function testSignRelease_Success() public {
@@ -293,7 +282,7 @@ contract RyzerEscrowTest is Test {
 
     function testSignRelease_PartialAmount() public {
         uint128 partialAmount = DEPOSIT_AMOUNT / 2;
-        
+
         // First deposit
         vm.prank(projectOwner);
         escrow.deposit(orderId1, buyer, DEPOSIT_AMOUNT, RyzerEscrow.Asset.USDT, assetId1);
@@ -313,19 +302,17 @@ contract RyzerEscrowTest is Test {
         assertEq(usdt.balanceOf(address(escrow)), partialAmount);
     }
 
-    
-
     // ============ DIVIDEND TESTS ============
 
     function testDepositDividend_USDT_Success() public {
         uint128 dividendAmount = 500e6;
-        
+
         // Approve and deposit dividend
         usdt.approve(address(escrow), dividendAmount);
-        
+
         vm.expectEmit(true, true, true, true);
         emit DividendDeposited(address(this), RyzerEscrow.Asset.USDT, dividendAmount);
-        
+
         escrow.depositDividend(RyzerEscrow.Asset.USDT, dividendAmount);
 
         // Verify dividend pool
@@ -335,13 +322,13 @@ contract RyzerEscrowTest is Test {
 
     function testDepositDividend_USDC_Success() public {
         uint128 dividendAmount = 500e6;
-        
+
         // Approve and deposit dividend
         usdc.approve(address(escrow), dividendAmount);
-        
+
         vm.expectEmit(true, true, true, true);
         emit DividendDeposited(address(this), RyzerEscrow.Asset.USDC, dividendAmount);
-        
+
         escrow.depositDividend(RyzerEscrow.Asset.USDC, dividendAmount);
 
         // Verify dividend pool
@@ -349,11 +336,10 @@ contract RyzerEscrowTest is Test {
         assertEq(usdc.balanceOf(address(escrow)), dividendAmount);
     }
 
-
     function testDistributeDividend_Success() public {
         uint128 dividendAmount = 500e6;
         uint128 distributionAmount = 200e6;
-        
+
         // First deposit dividend
         usdt.approve(address(escrow), dividendAmount);
         escrow.depositDividend(RyzerEscrow.Asset.USDT, dividendAmount);
@@ -361,7 +347,7 @@ contract RyzerEscrowTest is Test {
         // Distribute dividend
         vm.expectEmit(true, true, true, true);
         emit DividendDistributed(buyer, RyzerEscrow.Asset.USDT, distributionAmount);
-        
+
         vm.prank(admin1);
         escrow.distributeDividend(buyer, RyzerEscrow.Asset.USDT, distributionAmount);
 
@@ -369,8 +355,4 @@ contract RyzerEscrowTest is Test {
         assertEq(escrow.dividendPoolBalance(RyzerEscrow.Asset.USDT), dividendAmount - distributionAmount);
         assertEq(usdt.balanceOf(buyer), 10000e6 + distributionAmount);
     }
-
-    
-
-
 }

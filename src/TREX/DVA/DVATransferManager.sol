@@ -59,15 +59,13 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-pragma solidity 0.8.17;
+pragma solidity 0.8.24;
 
 import "../roles/AgentRole.sol";
 import "../token/IToken.sol";
 import "./IDVATransferManager.sol";
 
 contract DVATransferManager is IDVATransferManager {
-
     // Mapping for token approval criteria
     mapping(address => ApprovalCriteria) private _approvalCriteria;
 
@@ -77,7 +75,7 @@ contract DVATransferManager is IDVATransferManager {
     // nonce of the transaction allowing the creation of unique transferID
     uint256 private _txNonce;
 
-    constructor(){
+    constructor() {
         _txNonce = 0;
     }
 
@@ -99,29 +97,15 @@ contract DVATransferManager is IDVATransferManager {
             revert DVAManagerIsNotVerifiedForTheToken(tokenAddress);
         }
 
-        bytes32 hash = keccak256(
-            abi.encode(
-                tokenAddress,
-                includeRecipientApprover,
-                includeAgentApprover,
-                additionalApprovers
-            )
-        );
+        bytes32 hash =
+            keccak256(abi.encode(tokenAddress, includeRecipientApprover, includeAgentApprover, additionalApprovers));
 
         _approvalCriteria[tokenAddress] = ApprovalCriteria(
-            includeRecipientApprover,
-            includeAgentApprover,
-            sequentialApproval,
-            additionalApprovers,
-            hash);
+            includeRecipientApprover, includeAgentApprover, sequentialApproval, additionalApprovers, hash
+        );
 
         emit ApprovalCriteriaSet(
-            tokenAddress,
-            includeRecipientApprover,
-            includeAgentApprover,
-            sequentialApproval,
-            additionalApprovers,
-            hash
+            tokenAddress, includeRecipientApprover, includeAgentApprover, sequentialApproval, additionalApprovers, hash
         );
     }
 
@@ -153,14 +137,7 @@ contract DVATransferManager is IDVATransferManager {
         transfer.approvalCriteriaHash = approvalCriteria.hash;
 
         _addApproversToTransfer(transfer, approvalCriteria);
-        emit TransferInitiated(
-            transferID,
-            tokenAddress,
-            msg.sender,
-            recipient,
-            amount,
-            approvalCriteria.hash
-        );
+        emit TransferInitiated(transferID, tokenAddress, msg.sender, recipient, amount, approvalCriteria.hash);
     }
 
     /**
@@ -315,20 +292,20 @@ contract DVATransferManager is IDVATransferManager {
     /**
      *  @dev See {IDVATransferManager-calculateTransferID}
      */
-    function calculateTransferID(
-        uint256 _nonce,
-        address _sender,
-        address _recipient,
-        uint256 _amount
-    ) public pure returns (bytes32){
-        bytes32 transferID = keccak256(abi.encode(
-            _nonce, _sender, _recipient, _amount
-        ));
+    function calculateTransferID(uint256 _nonce, address _sender, address _recipient, uint256 _amount)
+        public
+        pure
+        returns (bytes32)
+    {
+        bytes32 transferID = keccak256(abi.encode(_nonce, _sender, _recipient, _amount));
         return transferID;
     }
 
     // solhint-disable-next-line code-complexity
-    function _approveTransfer(bytes32 transferID, Transfer storage transfer, address caller) internal returns (bool allApproved) {
+    function _approveTransfer(bytes32 transferID, Transfer storage transfer, address caller)
+        internal
+        returns (bool allApproved)
+    {
         bool approved = false;
         uint256 pendingApproverCount = 0;
         ApprovalCriteria memory approvalCriteria = _approvalCriteria[transfer.tokenAddress];
@@ -372,13 +349,7 @@ contract DVATransferManager is IDVATransferManager {
     function _completeTransfer(bytes32 transferID, Transfer storage transfer) internal {
         transfer.status = TransferStatus.COMPLETED;
         _transferTokensTo(transfer, transfer.recipient);
-        emit TransferCompleted(
-            transferID,
-            transfer.tokenAddress,
-            transfer.sender,
-            transfer.recipient,
-            transfer.amount
-        );
+        emit TransferCompleted(transferID, transfer.tokenAddress, transfer.sender, transfer.recipient, transfer.amount);
     }
 
     function _approvalCriteriaChanged(bytes32 transferID, Transfer storage transfer) internal returns (bool) {
@@ -390,10 +361,7 @@ contract DVATransferManager is IDVATransferManager {
         delete transfer.approvers;
         _addApproversToTransfer(transfer, approvalCriteria);
         transfer.approvalCriteriaHash = approvalCriteria.hash;
-        emit TransferApprovalStateReset(
-            transferID,
-            transfer.approvalCriteriaHash
-        );
+        emit TransferApprovalStateReset(transferID, transfer.approvalCriteriaHash);
 
         return true;
     }
@@ -416,9 +384,13 @@ contract DVATransferManager is IDVATransferManager {
         IToken(transfer.tokenAddress).transfer(to, transfer.amount);
     }
 
-    function _canApprove(Transfer memory transfer, Approver memory approver, address caller) internal view returns (bool) {
-        return approver.wallet == caller ||
-            (approver.anyTokenAgent && approver.wallet == address(0) && AgentRole(transfer.tokenAddress).isAgent(caller));
+    function _canApprove(Transfer memory transfer, Approver memory approver, address caller)
+        internal
+        view
+        returns (bool)
+    {
+        return approver.wallet == caller
+            || (approver.anyTokenAgent && approver.wallet == address(0) && AgentRole(transfer.tokenAddress).isAgent(caller));
     }
 
     function _getPendingTransfer(bytes32 transferID) internal view returns (Transfer storage) {

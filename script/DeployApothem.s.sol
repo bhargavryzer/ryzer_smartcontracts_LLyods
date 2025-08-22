@@ -13,9 +13,12 @@ import {RyzerEscrow} from "../src/RyzerEscrow.sol";
 import {RyzerOrderManager} from "../src/RyzerOrderManager.sol";
 import {RyzerDAO} from "../src/RyzerDAO.sol";
 import {RyzerRealEstateToken} from "../src/RyzerRealEstateToken.sol";
-
-// Mocks (for testnet deployment)
+import {RyzerCompany} from "../src/RyzerCompany.sol";
 import {UsdtMock} from "../src/UsdtMock.sol";
+import {UsdcMock} from "../src/UsdcMock.sol";
+import {RyzerToken} from "../src/RyzerToken.sol";
+import {ModularCompliance} from "../src/TREX/compliance/modular/ModularCompliance.sol";
+import {IdentityRegistry} from "../src/TREX/registry/implementation/IdentityRegistry.sol";
 
 contract DeployApothemScript is Script {
     // Contract instances
@@ -26,13 +29,18 @@ contract DeployApothemScript is Script {
     RyzerOrderManager public orderManagerImpl;
     RyzerDAO public daoImpl;
     RyzerRealEstateToken public projectTokenImpl;
+    RyzerCompany public ryzerCompanyImpl;
+    ModularCompliance public modularCompliance;
+    IdentityRegistry public identityRegistry;
 
     // Mock tokens
     UsdtMock public usdt;
+    UsdcMock public usdc;
+    RyzerToken public ryzerToken;
 
     // Deployment parameters
     address public deployer;
-    address public admin = 0x2e118e720e4142E75fC79a0f57745Af650d39F94; // Replace with your admin address
+    address public admin = 0xFDa522b8c863ed7Abf681d0c86Cc0c5DCb95d4E6; // Replace with your admin address
 
     // XDC Apothem testnet parameters
     uint256 public constant APOTHEM_CHAIN_ID = 51;
@@ -55,35 +63,46 @@ contract DeployApothemScript is Script {
         // 1. Deploy mock tokens (for testnet only)
         console.log("Deploying mock tokens...");
         usdt = new UsdtMock();
+        usdc = new UsdcMock();
+        ryzerToken = new RyzerToken();
 
         // 2. Deploy implementation contracts
         console.log("Deploying implementation contracts...");
-        registry = new RyzerRegistry();
-        companyFactory = new RyzerCompanyFactory();
+        ryzerCompanyImpl = new RyzerCompany();
+        projectTokenImpl = new RyzerRealEstateToken();
+        daoImpl = new RyzerDAO();
         escrowImpl = new RyzerEscrow();
         orderManagerImpl = new RyzerOrderManager();
-        daoImpl = new RyzerDAO();
-        projectTokenImpl = new RyzerRealEstateToken();
-
-        // 3. Deploy RealEstateTokenFactory (needs implementations)
-        console.log("Deploying RyzerRealEstateTokenFactory...");
+        companyFactory = new RyzerCompanyFactory();
         realEstateFactory = new RyzerRealEstateTokenFactory();
+        registry = new RyzerRegistry(); //proxy
+        modularCompliance = new ModularCompliance();
+        identityRegistry = new IdentityRegistry();
+
+
 
         // 4. Initialize the registry
         console.log("Initializing registry...");
-        registry.initialize(admin);
+        //deploying proxy 
+        bytes memory ryzerRegistyInitData = abi.encodeWithSignature("initialize()");
+        ERC1967Proxy ryzerRegistryProxy = new ERC1967Proxy(address(registry), ryzerRegistyInitData);
+
+
 
         // 5. Initialize the company factory
         console.log("Initializing company factory...");
-        companyFactory.initialize(admin, address(registry));
+        bytes memory ryzerCompanyFactoryInitData = abi.encodeWithSignature("initialize(address)",ryzerCompanyImpl);
+        ERC1967Proxy ryzerCompanyFactoryProxy = new ERC1967Proxy(address(companyFactory),ryzerCompanyFactoryInitData );
 
-        // 6. Transfer ownership of the registry to the company factory
-        console.log("Transferring registry ownership to company factory...");
-        registry.transferOwnership(address(companyFactory));
+        // 6. Initialize the realEstate factory
+        console.log("Initializing realEstateFactory ...");
+        address ryzerXToken = 0xeF4A07fA23A4BFe6aBf3b5B8791E90ea2E83081E;
+        bytes memory realEstateFactoryInitData = abi.encodeWithSignature("initialize(address,address,address,address,address,address,address)", usdc, usdt, ryzerToken, projectTokenImpl, escrowImpl, orderManagerImpl, daoImpl  );
+        ERC1967Proxy ryzeRealEstateFactoryProxy = new ERC1967Proxy(address(realEstateFactory), realEstateFactoryInitData);
 
-        // 7. Set up the real estate factory in the registry
-        console.log("Setting up real estate factory in registry...");
-        registry.setRealEstateFactory(address(realEstateFactory));
+
+
+
 
         vm.stopBroadcast();
 

@@ -65,8 +65,7 @@
  *     which prohibits commercial use. For commercial inquiries, please contact
  *     Tokeny sàrl for licensing options.
  */
-
-pragma solidity 0.8.17;
+pragma solidity 0.8.24;
 
 import "../IModularCompliance.sol";
 import "../../../token/IToken.sol";
@@ -190,12 +189,12 @@ contract CountryAllowModule is AbstractModuleUpgradeable {
      *  returns TRUE if the country of _to is allowed for this _compliance
      *  returns FALSE if the country of _to is not allowed for this _compliance
      */
-    function moduleCheck(
-        address /*_from*/,
-        address _to,
-        uint256 /*_value*/,
-        address _compliance
-    ) external view override returns (bool) {
+    function moduleCheck(address, /*_from*/ address _to, uint256, /*_value*/ address _compliance)
+        external
+        view
+        override
+        returns (bool)
+    {
         uint16 receiverCountry = _getCountry(_compliance, _to);
         return isCountryAllowed(_compliance, receiverCountry);
     }
@@ -203,7 +202,7 @@ contract CountryAllowModule is AbstractModuleUpgradeable {
     /**
      *  @dev See {IModule-canComplianceBind}.
      */
-    function canComplianceBind(address /*_compliance*/) external view override returns (bool) {
+    function canComplianceBind(address /*_compliance*/ ) external view override returns (bool) {
         return true;
     }
 
