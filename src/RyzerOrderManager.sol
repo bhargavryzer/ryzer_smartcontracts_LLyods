@@ -68,6 +68,8 @@ contract RyzerOrderManager is
         uint48 releaseAfter;
         OrderStatus status;
         Currency currency;
+        address projectAddress;
+         address escrowAddress;
         bool released;
     }
 
@@ -222,10 +224,14 @@ contract RyzerOrderManager is
             releaseAfter: 0,
             status: OrderStatus.Pending,
             currency: p.currency,
+            projectAddress:p.projectAddress,
+            escrowAddress:p.escrowAddress,
             released: false
         });
 
-        info.token.safeTransferFrom(msg.sender, p.escrowAddress, total);
+
+
+ 
 
         try IRyzerEscrow(p.escrowAddress).deposit(id, msg.sender, p.amountTokens, IRyzerEscrow.Asset.USDT, p.assetId) {
             emit OrderPlaced(id, msg.sender, p.amountTokens, p.assetId, p.currency, total);
@@ -251,7 +257,7 @@ contract RyzerOrderManager is
         if (block.timestamp > o.orderExpiry) revert OrderExpired();
 
         o.status = OrderStatus.Finalized;
-        o.releaseAfter = uint48(block.timestamp + _RELEASE_TIMELOCK);
+        IRyzerRealEstateToken(o.projectAddress).transferFrom(o.escrowAddress,msg.sender, o.amountTokens);
         emit OrderFinalized(id);
     }
 

@@ -9,7 +9,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract RyzerToken is ERC20, Ownable, ERC20Permit {
     uint8 private _decimals;
 
-    constructor() ERC20("USDT", "USDT") Ownable(msg.sender) ERC20Permit("USDT") {
+    constructor() ERC20("Ryzer", "Ryzer") Ownable(msg.sender) ERC20Permit("USDT") {
         _decimals = 18;
         _mint(msg.sender, 1000_000_000);
     }

@@ -190,8 +190,7 @@ contract RyzerEscrow is
         IERC20 paymentToken = token == Asset.USDT ? usdt : usdc;
         SafeERC20.safeTransferFrom(paymentToken, buyer, address(this), amount);
 
-        // IERC20(token == Asset.USDT ? address(usdt) : address(usdc))
-        //     .safeTransferFrom(buyer, address(this), amount);
+
 
         emit Deposited(orderId, buyer, token, amount, assetId);
     }
