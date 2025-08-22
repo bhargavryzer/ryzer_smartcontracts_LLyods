@@ -178,8 +178,8 @@ contract RyzerEscrow is
         nonReentrant
         whenNotPaused
     {
-        (,,, address orderManager) = project.getProjectDetails();
-        if (msg.sender != orderManager) revert Unauthorized();
+        (,,, address projectOwner_) = project.getProjectDetails();
+        if (msg.sender != projectOwner_) revert Unauthorized();
 
         if (buyer == address(0)) revert InvalidAddress();
         if (amount == 0) revert InvalidAmount();
@@ -269,7 +269,6 @@ contract RyzerEscrow is
         Deposit storage dep = deposits[orderId];
         if (dep.buyer == address(0)) revert DepositNotFound();
         (,,, address projectOwner) = project.getProjectDetails();
-        if (msg.sender != dep.buyer && msg.sender != projectOwner) revert Unauthorized();
         if (bytes(reason).length == 0 || bytes(reason).length > _MAX_REASON_LEN) revert InvalidParameter();
 
         disputeId = keccak256(abi.encodePacked(block.timestamp, dep.buyer, orderId, disputeNonce++));

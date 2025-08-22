@@ -26,36 +26,36 @@ contract DeployApothemScript is Script {
     RyzerOrderManager public orderManagerImpl;
     RyzerDAO public daoImpl;
     RyzerRealEstateToken public projectTokenImpl;
-    
+
     // Mock tokens
     UsdtMock public usdt;
-    
+
     // Deployment parameters
     address public deployer;
-    address public admin = 0x3Ea9B7F7b0D3dD3fE3f8E608EE105c6607B3D0D1; // Replace with your admin address
-    
+    address public admin = 0x2e118e720e4142E75fC79a0f57745Af650d39F94; // Replace with your admin address
+
     // XDC Apothem testnet parameters
     uint256 public constant APOTHEM_CHAIN_ID = 51;
     string public constant RPC_URL = "https://erpc.apothem.network";
-    
+
     function run() external {
         // Get deployer from private key
-        uint256 deployerPrivateKey = 0xb5583cc915872fc8a8d2563bcbb5976db91450b2b6c9c9aa3cbe05fc0001869b;
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         deployer = vm.rememberKey(deployerPrivateKey);
-        
+
         // Set the chain ID for XDC Apothem
         vm.chainId(APOTHEM_CHAIN_ID);
-        
+
         console.log("Deployer:", deployer);
         console.log("Deploying to XDC Apothem testnet...");
-        
+
         // Start broadcasting transactions
         vm.startBroadcast(deployer);
-        
+
         // 1. Deploy mock tokens (for testnet only)
         console.log("Deploying mock tokens...");
         usdt = new UsdtMock();
-        
+
         // 2. Deploy implementation contracts
         console.log("Deploying implementation contracts...");
         registry = new RyzerRegistry();
@@ -64,37 +64,29 @@ contract DeployApothemScript is Script {
         orderManagerImpl = new RyzerOrderManager();
         daoImpl = new RyzerDAO();
         projectTokenImpl = new RyzerRealEstateToken();
-        
+
         // 3. Deploy RealEstateTokenFactory (needs implementations)
         console.log("Deploying RyzerRealEstateTokenFactory...");
-        realEstateFactory = new RyzerRealEstateTokenFactory(
-            address(usdt),
-            address(0), // USDC (not used in this deployment)
-            address(0), // RYZER token (mock if needed)
-            address(projectTokenImpl),
-            address(escrowImpl),
-            address(orderManagerImpl),
-            address(daoImpl)
-        );
-        
+        realEstateFactory = new RyzerRealEstateTokenFactory();
+
         // 4. Initialize the registry
         console.log("Initializing registry...");
         registry.initialize(admin);
-        
+
         // 5. Initialize the company factory
         console.log("Initializing company factory...");
         companyFactory.initialize(admin, address(registry));
-        
+
         // 6. Transfer ownership of the registry to the company factory
         console.log("Transferring registry ownership to company factory...");
         registry.transferOwnership(address(companyFactory));
-        
+
         // 7. Set up the real estate factory in the registry
         console.log("Setting up real estate factory in registry...");
         registry.setRealEstateFactory(address(realEstateFactory));
-        
+
         vm.stopBroadcast();
-        
+
         // Log all deployed contract addresses
         console.log("\n=== Deployment Summary ===");
         console.log("RyzerRegistry:", address(registry));

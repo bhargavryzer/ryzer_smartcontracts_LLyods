@@ -32,8 +32,7 @@ abstract contract RyzerProjectToken is IToken, TokenStorage, AccessControlUpgrad
         uint8 _decimals,
         uint256 _maxSupply,
         address _factory,
-        address _projectOwner,
-        address _onchainID
+        address _projectOwner
     ) public onlyInitializing {
         //require(owner() == address(0), "already initialized");
         require(_identityRegistry != address(0) && _compliance != address(0), "invalid argument - zero address");
@@ -48,7 +47,6 @@ abstract contract RyzerProjectToken is IToken, TokenStorage, AccessControlUpgrad
         _tokenName = _name;
         _tokenSymbol = _symbol;
         _tokenDecimals = _decimals;
-        _tokenOnchainID = _onchainID;
         _tokenPaused = false;
         maxSupply = _maxSupply;
         _totalSupply = 0;

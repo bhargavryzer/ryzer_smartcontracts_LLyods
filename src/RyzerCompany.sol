@@ -28,23 +28,17 @@ contract RyzerCompany is Initializable, ContextUpgradeable, ERC165Upgradeable {
     bytes32 public CID; // 32 B (IPFS hash)
 
     /*────────────────────────────── EVENTS ───────────────────────────────*/
-    event Deployed(
-        address indexed owner, CompanyType indexed companyType, bytes32 name, bytes32 jurisdiction, bytes32 cid
-    );
+    event Deployed(address indexed owner, CompanyType indexed companyType, bytes32 name, bytes32 jurisdiction);
 
     /*────────────────────────────── CONSTRUCTOR / INITIALIZER ───────────*/
     /// @dev initializer called by factory or registry
-    function initialize(address owner_, CompanyType type_, bytes32 name_, bytes32 jurisdiction_, bytes32 cid_)
-        external
-        initializer
-    {
+    function initialize(address owner_, CompanyType type_, bytes32 name_, bytes32 jurisdiction_) external initializer {
         OWNER = owner_;
         TYPE = type_;
         NAME = name_;
         JURISDICTION = jurisdiction_;
-        CID = cid_;
 
-        emit Deployed(owner_, type_, name_, jurisdiction_, cid_);
+        emit Deployed(owner_, type_, name_, jurisdiction_);
     }
 
     /*────────────────────────────── ERC-165 ──────────────────────────────*/
@@ -56,8 +50,8 @@ contract RyzerCompany is Initializable, ContextUpgradeable, ERC165Upgradeable {
     function details()
         external
         view
-        returns (address owner, CompanyType companyType, bytes32 name, bytes32 jurisdiction, bytes32 cid)
+        returns (address owner, CompanyType companyType, bytes32 name, bytes32 jurisdiction)
     {
-        return (OWNER, TYPE, NAME, JURISDICTION, CID);
+        return (OWNER, TYPE, NAME, JURISDICTION);
     }
 }

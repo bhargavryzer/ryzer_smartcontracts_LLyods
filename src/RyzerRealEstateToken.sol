@@ -93,7 +93,6 @@ contract RyzerRealEstateToken is
         __AccessControl_init();
         __ReentrancyGuard_init();
 
-        // 初始化父合约 ERC-3643
         super.init(
             params.gov.identityRegistry,
             params.gov.compliance,
@@ -102,8 +101,7 @@ contract RyzerRealEstateToken is
             params.info.decimals,
             params.info.maxSupply,
             params.gov.factory,
-            params.gov.projectOwner,
-            params.gov.onchainID
+            params.gov.projectOwner
         );
 
         config = params;

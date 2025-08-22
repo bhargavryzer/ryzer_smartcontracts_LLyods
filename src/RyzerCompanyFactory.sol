@@ -38,8 +38,7 @@ contract RyzerCompanyFactory is
         address indexed owner,
         RyzerCompany.CompanyType companyType,
         bytes32 name,
-        bytes32 jurisdiction,
-        bytes32 cid
+        bytes32 jurisdiction
     );
     event ImplChanged(address indexed oldImpl, address indexed newImpl);
 
@@ -71,23 +70,23 @@ contract RyzerCompanyFactory is
 
     /*────────────────────────────── DEPLOY ───────────────────────────────*/
     /// @notice Deploy a new RyzerCompany proxy
-    function deployCompany(RyzerCompany.CompanyType companyType, bytes32 name, bytes32 jurisdiction, bytes32 cid)
+    function deployCompany(RyzerCompany.CompanyType companyType, bytes32 name, bytes32 jurisdiction)
         external
         whenNotPaused
         nonReentrant
         returns (uint256 id, address proxy)
     {
-        if (name == 0 || jurisdiction == 0 || cid == 0) revert BadInput();
+        if (name == 0 || jurisdiction == 0) revert BadInput();
 
         id = ++companyCounter;
         proxy = Clones.clone(companyImpl);
 
-        RyzerCompany(proxy).initialize(_msgSender(), companyType, name, jurisdiction, cid);
+        RyzerCompany(proxy).initialize(_msgSender(), companyType, name, jurisdiction);
 
         companyAt[id] = proxy;
         ownerIds[_msgSender()].push(id);
 
-        emit CompanyDeployed(id, proxy, _msgSender(), companyType, name, jurisdiction, cid);
+        emit CompanyDeployed(id, proxy, _msgSender(), companyType, name, jurisdiction);
     }
 
     /*────────────────────────────── VIEW HELPERS ─────────────────────────*/
