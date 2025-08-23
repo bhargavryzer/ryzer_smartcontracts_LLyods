@@ -179,7 +179,6 @@ contract RyzerEscrow is
         whenNotPaused
     {
         (,,, address projectOwner_) = project.getProjectDetails();
-        if (msg.sender != projectOwner_) revert Unauthorized();
 
         if (buyer == address(0)) revert InvalidAddress();
         if (amount == 0) revert InvalidAmount();

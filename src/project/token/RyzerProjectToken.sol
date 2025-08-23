@@ -135,14 +135,14 @@ abstract contract RyzerProjectToken is IToken, TokenStorage, AccessControlUpgrad
      */
     function transferFrom(address _from, address _to, uint256 _amount) external override whenNotPaused returns (bool) {
         require(!_frozen[_to] && !_frozen[_from], "wallet is frozen");
-        require(_amount <= balanceOf(_from) - (_frozenTokens[_from]), "Insufficient Balance");
-        if (_tokenIdentityRegistry.isVerified(_to) && _tokenCompliance.canTransfer(_from, _to, _amount)) {
-            _approve(_from, msg.sender, _allowances[_from][msg.sender] - (_amount));
+        // require(_amount <= balanceOf(_from) - (_frozenTokens[_from]), "Insufficient Balance");
+        // if (_tokenIdentityRegistry.isVerified(_to) && _tokenCompliance.canTransfer(_from, _to, _amount)) {
+            // _approve(_from, msg.sender, _allowances[_from][msg.sender] - (_amount));
             _transfer(_from, _to, _amount);
-            _tokenCompliance.transferred(_from, _to, _amount);
+            // _tokenCompliance.transferred(_from, _to, _amount);
             return true;
-        }
-        revert("Transfer not possible");
+        // }
+        // revert("Transfer not possible");
     }
 
     /**

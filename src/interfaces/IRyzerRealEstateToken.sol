@@ -90,7 +90,7 @@ interface IRyzerRealEstateToken {
 
     function getIsActive() external view returns (bool);
 
-        function transferFrom(address _from, address _to, uint256 _amount) external;
+    function transferFrom(address _from, address _to, uint256 _amount) external;
 
     function getInvestmentLimits() external view returns (uint256 min, uint256 max);
 
