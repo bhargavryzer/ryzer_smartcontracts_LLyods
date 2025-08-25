@@ -25,7 +25,7 @@ import {RyzerEscrow} from "../src/RyzerEscrow.sol";
 import {RyzerRealEstateToken} from "../src/RyzerRealEstateToken.sol";
 import {RyzerDAO} from "../src/RyzerDAO.sol";
 
-//create company -> create project -> place order -> finalize order -> 
+//create company -> create project -> place order -> finalize order ->
 contract RyzerFlowTest is Test {
     // Test accounts
     address public admin = address(0x1);

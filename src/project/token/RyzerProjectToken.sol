@@ -41,7 +41,7 @@ abstract contract RyzerProjectToken is IToken, TokenStorage, AccessControlUpgrad
                 && keccak256(abi.encode(_symbol)) != keccak256(abi.encode("")),
             "invalid argument - empty string"
         );
-        require(0 <= _decimals && _decimals <= 18, "decimals between 0 and 18");
+        require(0 <= _decimals && _decimals <= 18, "decimals between 0 and 18"); //@audit why we are allowing decimals to be between 0 and 18 instead of standard decimals like erc20
 
         __AccessControl_init();
         _tokenName = _name;
@@ -137,10 +137,10 @@ abstract contract RyzerProjectToken is IToken, TokenStorage, AccessControlUpgrad
         require(!_frozen[_to] && !_frozen[_from], "wallet is frozen");
         // require(_amount <= balanceOf(_from) - (_frozenTokens[_from]), "Insufficient Balance");
         // if (_tokenIdentityRegistry.isVerified(_to) && _tokenCompliance.canTransfer(_from, _to, _amount)) {
-            // _approve(_from, msg.sender, _allowances[_from][msg.sender] - (_amount));
-            _transfer(_from, _to, _amount);
-            // _tokenCompliance.transferred(_from, _to, _amount);
-            return true;
+        // _approve(_from, msg.sender, _allowances[_from][msg.sender] - (_amount));
+        _transfer(_from, _to, _amount);
+        // _tokenCompliance.transferred(_from, _to, _amount);
+        return true;
         // }
         // revert("Transfer not possible");
     }

@@ -189,8 +189,6 @@ contract RyzerEscrow is
         IERC20 paymentToken = token == Asset.USDT ? usdt : usdc;
         SafeERC20.safeTransferFrom(paymentToken, buyer, address(this), amount);
 
-
-
         emit Deposited(orderId, buyer, token, amount, assetId);
     }
 
@@ -357,5 +355,9 @@ contract RyzerEscrow is
 
     function dividendPoolBalance(Asset token) external view returns (uint128) {
         return token == Asset.USDT ? dividendPoolUSDT : dividendPoolUSDC;
+    }
+
+    function getDepositStatus(bytes32 id) external view returns(Deposit memory){
+        return deposits[id];
     }
 }

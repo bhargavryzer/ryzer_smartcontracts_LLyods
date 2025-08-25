@@ -139,6 +139,16 @@ contract RyzerRealEstateTokenFactory is
         uint256 maxInvestment;
     }
 
+    struct addresses{
+        address escrowAddress;
+        address daoAddress;
+        address orderManagerAddress;
+        address usdc;
+        address usdt;
+    }
+
+    mapping(address => addresses) public addressTo;
+
     /// @notice Deploy a new real-estate project.
     /// @param p    All project parameters (unchanged).
     /// @param coin Which stable-coin to wire into Escrow / OM.
@@ -197,6 +207,13 @@ contract RyzerRealEstateTokenFactory is
         IRyzerEscrow(escrow).initialize(address(usdt), address(usdc), project, p.projectOwner);
         IRyzerOrderManager(orderManager).initialize(escrow, project, p.projectOwner);
         IRyzerDAO(dao).initialize(project, address(ryzerXToken), 60 /* quorum placeholder */ );
+        addressTo[project] = addresses({
+            escrowAddress:escrow,
+            daoAddress:dao,
+            orderManagerAddress:orderManager,
+            usdc:address(usdc),
+            usdt:address(usdt)
+        });
 
         emit ProjectDeployed(project, escrow, orderManager, dao, p.assetId, p.name, address(stableCoin));
     }
@@ -231,5 +248,12 @@ contract RyzerRealEstateTokenFactory is
         if (p.minInvestment == 0) revert InvalidParameter("minInvestment");
         if (p.maxInvestment < p.minInvestment) revert InvalidParameter("maxInvestment");
         if (p.dividendPct > 50) revert InvalidParameter("dividendPct");
+    }
+    /* --------------------------------------------------------- */
+    /*                     View Functions                        */
+    /* --------------------------------------------------------- */
+
+    function getAddresses(address projectAddress) public view returns(addresses memory){
+        return addressTo[projectAddress];
     }
 }

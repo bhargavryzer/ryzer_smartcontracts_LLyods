@@ -11,15 +11,14 @@ import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {RyzerCompany} from "./RyzerCompany.sol";
 import {IRyzerRegistry} from "../src/interfaces/IRyzerRegistry.sol";
 
-
 contract RyzerCompanyFactory is
     Initializable,
     UUPSUpgradeable,
     AccessControlUpgradeable,
     PausableUpgradeable,
     ReentrancyGuardUpgradeable
-{   
-    IRyzerRegistry public  ryzerRegistry;
+{
+    IRyzerRegistry public ryzerRegistry;
     /*────────────────────────────── ROLES ───────────────────────────────*/
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
@@ -85,7 +84,6 @@ contract RyzerCompanyFactory is
         proxy = Clones.clone(companyImpl);
 
         RyzerCompany(proxy).initialize(_msgSender(), companyType, name, jurisdiction);
-
 
         companyAt[id] = proxy;
         ownerIds[_msgSender()].push(id);

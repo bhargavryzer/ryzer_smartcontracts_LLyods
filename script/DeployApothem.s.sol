@@ -69,40 +69,43 @@ contract DeployApothemScript is Script {
         // 2. Deploy implementation contracts
         console.log("Deploying implementation contracts...");
         ryzerCompanyImpl = new RyzerCompany();
+        companyFactory = new RyzerCompanyFactory();
         projectTokenImpl = new RyzerRealEstateToken();
         daoImpl = new RyzerDAO();
         escrowImpl = new RyzerEscrow();
         orderManagerImpl = new RyzerOrderManager();
-        companyFactory = new RyzerCompanyFactory();
+      
         realEstateFactory = new RyzerRealEstateTokenFactory();
         registry = new RyzerRegistry(); //proxy
         modularCompliance = new ModularCompliance();
         identityRegistry = new IdentityRegistry();
 
-
-
         // 4. Initialize the registry
         console.log("Initializing registry...");
-        //deploying proxy 
+        //deploying proxy
         bytes memory ryzerRegistyInitData = abi.encodeWithSignature("initialize()");
         ERC1967Proxy ryzerRegistryProxy = new ERC1967Proxy(address(registry), ryzerRegistyInitData);
 
-
-
         // 5. Initialize the company factory
         console.log("Initializing company factory...");
-        bytes memory ryzerCompanyFactoryInitData = abi.encodeWithSignature("initialize(address)",ryzerCompanyImpl);
-        ERC1967Proxy ryzerCompanyFactoryProxy = new ERC1967Proxy(address(companyFactory),ryzerCompanyFactoryInitData );
+        bytes memory ryzerCompanyFactoryInitData = abi.encodeWithSignature("initialize(address)", ryzerCompanyImpl);
+        ERC1967Proxy ryzerCompanyFactoryProxy = new ERC1967Proxy(address(companyFactory), ryzerCompanyFactoryInitData);
 
         // 6. Initialize the realEstate factory
         console.log("Initializing realEstateFactory ...");
         address ryzerXToken = 0xeF4A07fA23A4BFe6aBf3b5B8791E90ea2E83081E;
-        bytes memory realEstateFactoryInitData = abi.encodeWithSignature("initialize(address,address,address,address,address,address,address)", usdc, usdt, ryzerToken, projectTokenImpl, escrowImpl, orderManagerImpl, daoImpl  );
-        ERC1967Proxy ryzeRealEstateFactoryProxy = new ERC1967Proxy(address(realEstateFactory), realEstateFactoryInitData);
-
-
-
-
+        bytes memory realEstateFactoryInitData = abi.encodeWithSignature(
+            "initialize(address,address,address,address,address,address,address)",
+            usdc,
+            usdt,
+            ryzerToken,
+            projectTokenImpl,
+            escrowImpl,
+            orderManagerImpl,
+            daoImpl
+        );
+        ERC1967Proxy ryzeRealEstateFactoryProxy =
+            new ERC1967Proxy(address(realEstateFactory), realEstateFactoryInitData);
 
         vm.stopBroadcast();
 

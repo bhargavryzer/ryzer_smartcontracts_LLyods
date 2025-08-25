@@ -63,7 +63,7 @@ contract RyzerDAO is
     }
     // description stored off-chain via emit only
 
-    mapping(uint256 => Proposal) public proposals;
+    mapping(uint256 => Proposal) public proposals; //@note
 
     // SLOT b..c: two packed bitmaps per proposal
     mapping(uint256 => mapping(uint256 => uint256)) private _voted; // 256 voters per word
@@ -275,5 +275,13 @@ contract RyzerDAO is
     //////////////////////////////////////////////////////////////*/
     function getProposalStatus(uint256 proposalId) external view returns (Proposal memory) {
         return proposals[proposalId];
+    }
+
+    function getQuorumThreshold() public view returns(uint8){
+        return quorumThreshold;
+    }
+
+    function getProposalCount() public view returns(uint16){
+        return proposalCount;
     }
 }

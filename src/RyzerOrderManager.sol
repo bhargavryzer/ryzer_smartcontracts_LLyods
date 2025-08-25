@@ -69,7 +69,7 @@ contract RyzerOrderManager is
         OrderStatus status;
         Currency currency;
         address projectAddress;
-         address escrowAddress;
+        address escrowAddress;
         bool released;
     }
 
@@ -224,14 +224,10 @@ contract RyzerOrderManager is
             releaseAfter: 0,
             status: OrderStatus.Pending,
             currency: p.currency,
-            projectAddress:p.projectAddress,
-            escrowAddress:p.escrowAddress,
+            projectAddress: p.projectAddress,
+            escrowAddress: p.escrowAddress,
             released: false
         });
-
-
-
- 
 
         try IRyzerEscrow(p.escrowAddress).deposit(id, msg.sender, p.amountTokens, IRyzerEscrow.Asset.USDT, p.assetId) {
             emit OrderPlaced(id, msg.sender, p.amountTokens, p.assetId, p.currency, total);
@@ -257,7 +253,7 @@ contract RyzerOrderManager is
         if (block.timestamp > o.orderExpiry) revert OrderExpired();
 
         o.status = OrderStatus.Finalized;
-        IRyzerRealEstateToken(o.projectAddress).transferFrom(o.escrowAddress,msg.sender, o.amountTokens);
+        IRyzerRealEstateToken(o.projectAddress).transferFrom(o.escrowAddress, msg.sender, o.amountTokens);
         emit OrderFinalized(id);
     }
 
@@ -367,5 +363,13 @@ contract RyzerOrderManager is
 
     function hasSignedRelease(bytes32 id, address signer) external view returns (bool) {
         return _releaseSig[id][signer];
+    }
+
+    function getEscrow() external view returns(address){
+        return escrow;
+    }
+
+    function getProject() external view returns(address){
+        return project;
     }
 }
