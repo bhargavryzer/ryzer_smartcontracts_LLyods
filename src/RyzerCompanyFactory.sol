@@ -74,6 +74,7 @@ contract RyzerCompanyFactory is
     /// @notice Deploy a new RyzerCompany proxy
     function deployCompany(RyzerCompany.CompanyType companyType, bytes32 name, bytes32 jurisdiction)
         external
+        onlyRole(ADMIN_ROLE)
         whenNotPaused
         nonReentrant
         returns (uint256 id, address proxy)

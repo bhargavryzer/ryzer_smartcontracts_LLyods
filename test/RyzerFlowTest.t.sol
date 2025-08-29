@@ -7,6 +7,8 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {ERC20Mock} from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
+import {UsdcMock} from "../src/USDCMock.sol";
+import {UsdtMock} from "../src/UsdtMock.sol";
 
 // Import interfaces
 import {IRyzerCompany} from "../src/interfaces/IRyzerCompany.sol";
@@ -28,20 +30,26 @@ import {RyzerDAO} from "../src/RyzerDAO.sol";
 //create company -> create project -> place order -> finalize order ->
 contract RyzerFlowTest is Test {
     // Test accounts
-    address public admin = address(0x1);
-    address public companyOwner = address(0x2);
-    address public investor1 = address(0x3);
-    address public investor2 = address(0x4);
-    address public feeRecipient = address(0x5);
+    address public admin = makeAddr("ADMIN");
+    address public companyOwner = makeAddr("Company Owner");
+    address public investor1 = makeAddr("INVESTOR 1");
+    address public investor2 = makeAddr("INVESTOR 2");
+    address public feeRecipient = makeAddr("Fee Recipient");
 
     // Contract instances
     RyzerCompanyFactory public companyFactory;
     RyzerRegistry public registry;
     RyzerRealEstateTokenFactory public refactory;
 
+    // Mock contracts for testing
+    MockIdentityRegistry public identityRegistry;
+    MockModularCompliance public compliance;
+    MockClaimIssuerRegistry public issuerRegistry;
+    MockClaimRegistry public claimRegistry;
+
     // Token addresses
-    ERC20Mock public usdt;
-    ERC20Mock public usdc;
+    UsdtMock public usdt;
+    UsdcMock public usdc;
 
     // Project details
     uint256 public companyId;
@@ -63,13 +71,19 @@ contract RyzerFlowTest is Test {
         // Set up test accounts
         vm.startPrank(admin);
 
-        // Deploy stablecoins
-        usdt = new ERC20Mock();
+        // Deploy mock contracts for identity and compliance
+        identityRegistry = new MockIdentityRegistry();
+        compliance = new MockModularCompliance();
+        issuerRegistry = new MockClaimIssuerRegistry();
+        claimRegistry = new MockClaimRegistry();
+
+        // Deploy stablecoins with proper decimal handling
+        usdt = new UsdtMock();
         usdt.mint(admin, 1000000 * 10 ** 6);
         usdt.mint(investor1, 50000 * 10 ** 6);
         usdt.mint(investor2, 50000 * 10 ** 6);
 
-        usdc = new ERC20Mock();
+        usdc = new UsdcMock();
         usdc.mint(admin, 1000000 * 10 ** 6);
 
         // Deploy registry
@@ -81,6 +95,7 @@ contract RyzerFlowTest is Test {
         RyzerCompany companyImpl = new RyzerCompany();
         companyFactory = new RyzerCompanyFactory();
         companyFactory.initialize(address(companyImpl));
+        companyFactory.deployCompany(RyzerCompany.CompanyType.LLC, keccak256("Test Company"), keccak256("US"));
 
         // Deploy implementation contracts first
         address tokenImpl = address(new RyzerRealEstateToken());
@@ -94,17 +109,10 @@ contract RyzerFlowTest is Test {
         // Deploy a mock RyzerX token for testing with 18 decimals
         ERC20Mock ryzerXToken = new ERC20Mock();
 
-        // Set decimals to 18 for RyzerX token before any operations
-        vm.store(
-            address(ryzerXToken),
-            bytes32(uint256(0x7)), // ERC20Storage._DECIMALS_SLOT
-            bytes32(uint256(18))
-        );
-
         // Initialize the factory with all required parameters
         refactory.initialize(
-            address(usdt), // USDT address
             address(usdc), // USDC address
+            address(usdt), // USDT address
             address(ryzerXToken), // RyzerX token address (18 decimals)
             tokenImpl, // Project token implementation
             escrowImpl, // Escrow implementation
@@ -112,13 +120,9 @@ contract RyzerFlowTest is Test {
             daoImpl // DAO implementation
         );
 
-        // Register company as the company owner
-        vm.startPrank(companyOwner);
-        companyFactory.deployCompany(RyzerCompany.CompanyType.LLC, keccak256("Test Company"), keccak256("US"));
+        // Grant ADMIN_ROLE to admin for factory operations
+        refactory.grantRole(refactory.ADMIN_ROLE(), admin);
 
-        // Get company ID
-        companyId = registry.companyOf(companyOwner);
-        vm.stopPrank();
 
         vm.stopPrank();
     }
@@ -128,9 +132,9 @@ contract RyzerFlowTest is Test {
 
         // 1. Deploy project contracts
         RyzerRealEstateTokenFactory.DeployParams memory params = RyzerRealEstateTokenFactory.DeployParams({
-            identityRegistry: address(0), // TODO: Add proper identity registry
-            compliance: address(0), // TODO: Add proper compliance
-            onchainID: address(0), // TODO: Add proper onchainID
+            identityRegistry: address(identityRegistry), // Use mock identity registry
+            compliance: address(compliance), // Use mock compliance
+            onchainID: address(0x20), // Placeholder address
             name: "Test Project",
             symbol: "TST",
             decimals: 18,
@@ -145,7 +149,7 @@ contract RyzerFlowTest is Test {
             dividendPct: 10, // 10%
             preMintAmount: 0,
             minInvestment: 100 * 10 ** 6, // $100 min investment
-            maxInvestment: 1_000_000 * 10 ** 6 // $1M max investment
+            maxInvestment: 1_000_000 * 10 ** 18 // $1M max investment (adjusted to 18 decimals for token amount)
         });
 
         (address token, address escrow, address orderManager, address dao) =
@@ -162,17 +166,22 @@ contract RyzerFlowTest is Test {
         RyzerOrderManager om = RyzerOrderManager(orderManagerAddress);
         RyzerEscrow escrowContract = RyzerEscrow(escrowAddress);
 
-        // Set up order manager
+        // Set up order manager (switch to company owner who has admin role)
+        vm.stopPrank();
+        vm.startPrank(companyOwner); // CompanyOwner has the ADMIN_ROLE for OrderManager
         om.setCurrency(RyzerOrderManager.Currency.USDT, address(usdt), true); // USDT
         om.setCurrency(RyzerOrderManager.Currency.USDC, address(usdc), true); // USDC
         om.setPlatformFee(100); // 1%
         om.setFeeRecipient(feeRecipient);
+        vm.stopPrank();
 
-        // 3. Mint initial tokens to company owner
+        // 3. Mint initial tokens to company owner (the factory has minting role)
+        vm.startPrank(address(refactory)); // Factory has MINTER_ROLE
         project.mint(companyOwner, TOKEN_SUPPLY);
+        vm.stopPrank();
+        vm.startPrank(companyOwner);
 
         // 4. Approve tokens for sale
-        vm.startPrank(companyOwner);
         project.approve(escrowAddress, TOKEN_SUPPLY);
 
         // 5. Create an order
@@ -181,6 +190,7 @@ contract RyzerFlowTest is Test {
         uint128 totalPrice = uint128((amount * TOKEN_PRICE) / 10 ** 18);
 
         // 6. Investor places an order
+        vm.stopPrank();
         vm.startPrank(investor1);
         usdt.approve(escrowAddress, totalPrice);
 
@@ -193,47 +203,123 @@ contract RyzerFlowTest is Test {
             keccak256("test-asset")
         );
 
-        // 7. Sign release (simulating admin signatures)
+        // 7. Sign release to project owner (simulating successful order completion)
+        vm.stopPrank();
+        
+        // Grant admin role to admin for escrow operations
+        vm.startPrank(companyOwner);
+        escrowContract.grantRole(escrowContract.ADMIN_ROLE(), admin);
+        vm.stopPrank();
+        
         address[] memory signers = new address[](2);
         signers[0] = admin;
         signers[1] = companyOwner;
 
+        // Sign release to project owner (company receives payment for tokens sold)
         for (uint256 i = 0; i < signers.length; i++) {
             vm.prank(signers[i]);
-            escrowContract.signRelease(orderId, investor1, totalPrice);
-        }
-
-        // 8. Sign the release (requires multiple admin signatures)
-        address[] memory admins = new address[](2);
-        admins[0] = admin;
-        admins[1] = companyOwner; // Assuming companyOwner is also an admin
-
-        // Each admin signs the release
-        for (uint256 i = 0; i < admins.length; i++) {
-            vm.prank(admins[i]);
             escrowContract.signRelease(orderId, companyOwner, totalPrice);
         }
 
-        // 9. Transfer tokens to investor
+        // 8. Transfer tokens to investor (company fulfills the order)
         vm.prank(companyOwner);
         project.transfer(investor1, amount);
 
-        // 10. Distribute dividends
+        // 9. Distribute dividends
         uint256 dividendAmount = 1000 * 10 ** 6; // $1000 in USDT
 
-        // Company deposits dividends
+        // Company deposits dividends to dividend pool
         vm.prank(companyOwner);
-        usdt.transfer(escrowAddress, dividendAmount);
+        usdt.approve(escrowAddress, dividendAmount);
+        
+        vm.prank(companyOwner);
+        escrowContract.depositDividend(RyzerEscrow.Asset.USDT, uint128(dividendAmount));
 
-        // Distribute dividends directly to the investor
+        // Distribute dividends to the investor
         vm.prank(companyOwner);
         escrowContract.distributeDividend(investor1, RyzerEscrow.Asset.USDT, uint128(dividendAmount));
 
         // Verify final balances
+        // Investor should have:
+        // - Initial balance: 50000 * 10 ** 6
+        // - Minus payment: totalPrice  
+        // - Plus dividend: dividendAmount
         assertEq(usdt.balanceOf(investor1), (50000 * 10 ** 6) - totalPrice + dividendAmount);
         assertEq(project.balanceOf(investor1), amount);
         assertEq(project.balanceOf(companyOwner), TOKEN_SUPPLY - amount);
+        
+        // Company should have received payment but then spent it all on dividends
+        // Company received: totalPrice, spent: dividendAmount (same amount)
+        assertEq(usdt.balanceOf(companyOwner), 0);
 
         vm.stopPrank();
+    }
+}
+
+// Mock contracts for testing
+contract MockIdentityRegistry {
+    mapping(address => bool) public verified;
+
+    function isVerified(address account) external view returns (bool) {
+        return true;
+    }
+
+    function setVerified(address account, bool status) external {
+        verified[account] = status;
+    }
+}
+
+contract MockModularCompliance {
+    mapping(address => bool) public boundTokens;
+
+    function bindToken(address token) external {
+        boundTokens[token] = true;
+    }
+
+    function canTransfer(address, address, uint256) external pure returns (bool) {
+        return true;
+    }
+
+    function transferred(address, address, uint256) external pure {
+        // No-op for testing
+    }
+}
+
+contract MockClaimIssuerRegistry {
+    mapping(address => bool) public trustedIssuers;
+
+    function isTrustedIssuer(address issuer) external view returns (bool) {
+        return true;
+    }
+
+    function setTrustedIssuer(address issuer, bool trusted) external {
+        trustedIssuers[issuer] = trusted;
+    }
+}
+
+contract MockClaimRegistry {
+    mapping(address => mapping(uint256 => bool)) public claims;
+
+    function hasClaim(address account, uint256 claimType) external view returns (bool) {
+        return true;
+    }
+
+    function setClaim(address account, uint256 claimType, bool hasVerifiedClaim) external {
+        claims[account][claimType] = hasVerifiedClaim;
+    }
+}
+
+contract MockValidationLibrary {
+    // Static functions for testing - in reality this would be a library
+    function validateAddress(address addr, string memory name) external pure {
+        require(addr != address(0), string(abi.encodePacked(name, " cannot be zero")));
+    }
+
+    function validateBytes32(bytes32 value, string memory name) external pure {
+        require(value != bytes32(0), string(abi.encodePacked(name, " cannot be zero")));
+    }
+
+    function validateAmount(uint256 amount, string memory name) external pure {
+        require(amount > 0, string(abi.encodePacked(name, " must be positive")));
     }
 }
